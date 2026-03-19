@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>University Planner 2026</title>
+<style>
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --border:#2e3250;
+  --accent:#6c63ff; --accent2:#00d4aa; --red:#ff4d6d; --orange:#ff9f43;
+  --green:#00d4aa; --text:#e2e8f0; --muted:#8892b0; --radius:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;font-size:13px;}
+/* HEADER */
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;}
+.header-left{display:flex;align-items:center;gap:10px;}
+h1{font-size:20px;font-weight:700;}
+.badge{background:var(--accent);color:#fff;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.date{color:var(--muted);font-size:12px;}
+.btn-reset{background:rgba(255,77,109,0.15);color:var(--red);border:1px solid rgba(255,77,109,0.3);padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;}
+.btn-reset:hover{background:rgba(255,77,109,0.3);}
+/* TABS */
+.tabs{display:flex;gap:4px;padding:12px 24px 0;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;}
+.tab{padding:8px 16px;border-radius:8px 8px 0 0;cursor:pointer;font-weight:500;color:var(--muted);border:1px solid transparent;border-bottom:none;white-space:nowrap;transition:all .2s;}
+.tab:hover{color:var(--text);background:var(--surface2);}
+.tab.active{color:var(--accent);background:var(--bg);border-color:var(--border);}
+/* CONTENT */
+.content{padding:20px 24px;display:none;}
+.content.active{display:block;}
+.section-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:20px 0 10px;}
+/* CARDS */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;}
+.card-label{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.card-value{font-size:26px;font-weight:700;}
+.cv-purple{color:var(--accent)}.cv-green{color:var(--green)}.cv-orange{color:var(--orange)}.cv-red{color:var(--red)}.cv-muted{color:var(--muted)}
+/* FOCUS */
+.focus-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.focus-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;border-left:3px solid var(--accent);position:relative;}
+.focus-card .fc-num{font-size:11px;color:var(--muted);margin-bottom:4px;}
+.focus-card .fc-task{font-weight:600;margin-bottom:4px;}
+.focus-card .fc-meta{font-size:11px;color:var(--muted);}
+/* TABLE WRAP */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px;}
+.table-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.table-title{font-weight:600;font-size:14px;}
+table{width:100%;border-collapse:collapse;}
+th{background:var(--surface2);color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px;padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);}
+td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.02);}
+.group-row td{background:rgba(108,99,255,.08);color:var(--accent);font-weight:600;font-size:12px;}
+.module-row td{background:rgba(0,212,170,.05);color:var(--accent2);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px;}
+/* PROGRESS */
+.prog-wrap{background:var(--border);border-radius:20px;height:5px;width:80px;overflow:hidden;display:inline-block;vertical-align:middle;}
+.prog-bar{height:100%;border-radius:20px;background:var(--accent2);}
+.prog-bar.orange{background:var(--orange);}
+.prog-bar.red{background:var(--red);}
+.prog-label{font-size:11px;color:var(--muted);margin-left:5px;}
+/* STATUS / PRIORITY */
+.status,.pri{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;}
+.s-done{background:rgba(0,212,170,.15);color:var(--green);}
+.s-prog{background:rgba(108,99,255,.15);color:var(--accent);}
+.s-none{background:rgba(136,146,176,.15);color:var(--muted);}
+.s-over{background:rgba(255,77,109,.15);color:var(--red);}
+.p-high{color:var(--red)}.p-med{color:var(--orange)}.p-low{color:var(--green)}
+/* BUTTONS */
+.btn{padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;border:none;transition:all .2s;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{background:#5a52e0;}
+.btn-sm{padding:3px 9px;font-size:11px;border-radius:5px;cursor:pointer;border:none;font-weight:600;}
+.btn-edit{background:rgba(108,99,255,.2);color:var(--accent);}
+.btn-edit:hover{background:rgba(108,99,255,.4);}
+.btn-del{background:rgba(255,77,109,.15);color:var(--red);}
+.btn-del:hover{background:rgba(255,77,109,.3);}
+.btn-urgent{background:rgba(255,159,67,.15);color:var(--orange);}
+.btn-urgent:hover{background:rgba(255,159,67,.3);}
+.btn-up{background:rgba(0,212,170,.1);color:var(--green);}
+.btn-up:hover{background:rgba(0,212,170,.25);}
+.btn-dn{background:rgba(136,146,176,.1);color:var(--muted);}
+.btn-dn:hover{background:rgba(136,146,176,.2);}
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;width:560px;max-width:95vw;max-height:90vh;overflow-y:auto;}
+.modal h2{font-size:16px;margin-bottom:18px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-grid.full{grid-template-columns:1fr;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-group label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.form-group input,.form-group select,.form-group textarea{background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 10px;font-size:13px;font-family:inherit;transition:border .2s;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--accent);}
+.form-group select option{background:var(--surface2);}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;}
+.urgent-badge{background:rgba(255,77,109,.2);color:var(--red);border:1px solid rgba(255,77,109,.4);padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;margin-left:6px;}
+/* NOTES */
+.notes-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.notes-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;}
+.notes-box h3{font-size:13px;margin-bottom:8px;}
+.notes-box textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:10px;font-size:12px;resize:vertical;min-height:100px;font-family:inherit;}
+.notes-box textarea:focus{outline:none;border-color:var(--accent);}
+/* REVIEW */
+.review-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.review-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;}
+.review-q{color:var(--muted);font-size:11px;margin-bottom:6px;}
+.review-item input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 10px;font-size:12px;font-family:inherit;}
+.review-item input:focus{outline:none;border-color:var(--accent);}
+/* DRAG */
+tr.dragging{opacity:.4;}
+tr.drag-over td{border-top:2px solid var(--accent);}
+.drag-handle{cursor:grab;color:var(--muted);padding:0 4px;user-select:none;font-size:14px;}
+.drag-handle:active{cursor:grabbing;}
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 18px;font-size:13px;z-index:9999;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast.success{border-color:var(--green);color:var(--green);}
+.toast.error{border-color:var(--red);color:var(--red);}
+@media(max-width:700px){
+  .focus-grid{grid-template-columns:1fr;}
+  .form-grid{grid-template-columns:1fr;}
+  .notes-grid,.review-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>🎓 University Planner</h1>
+    <span class="badge">2026</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span class="date" id="currentDate"></span>
+    <button class="btn-reset" onclick="confirmReset()">🗑 Reset All Data</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('dashboard',this)">📊 Dashboard</div>
+  <div class="tab" onclick="showTab('study',this)">📚 Study</div>
+  <div class="tab" onclick="showTab('projects',this)">💻 Projects</div>
+  <div class="tab" onclick="showTab('skills',this)">🧠 Skills</div>
+  <div class="tab" onclick="showTab('personal',this)">📅 Personal</div>
+  <div class="tab" onclick="showTab('weekly',this)">🗓 Weekly</div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="content active">
+  <div class="cards" id="dashCards"></div>
+  <div class="section-label">🎯 Daily Focus — Top 3 High Priority Tasks</div>
+  <div class="focus-grid" id="focusGrid"></div>
+  <div class="section-label">📈 Category Progress</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Category</th><th>Total</th><th>Done</th><th>In Progress</th><th>Progress</th></tr></thead>
+      <tbody id="catProgress"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- STUDY -->
+<div id="study" class="content">
+  <div class="table-wrap">
+    <div class="table-header">
+      <span class="table-title">📚 Study Tracker</span>
+      <button class="btn btn-primary" onclick="openModal('study')">+ Add Task</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:28px"></th>
+          <th>Course</th><th>Type</th><th>Task</th><th>Deadline</th>
+          <th>Priority</th><th>Status</th><th>Progress</th><th>Notes</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="studyBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PROJECTS -->
+<div id="projects" class="content">
+  <div class="table-wrap">
+    <div class="table-header">
+      <span class="table-title">💻 Project Tracker</span>
+      <button class="btn btn-primary" onclick="openModal('project')">+ Add Task</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:28px"></th>
+          <th>Project</th><th>Module</th><th>Task</th><th>Start</th><th>Deadline</th>
+          <th>Priority</th><th>Status</th><th>Progress</th><th>Depends On</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="projectBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- SKILLS -->
+<div id="skills" class="content">
+  <div class="table-wrap">
+    <div class="table-header">
+      <span class="table-title">🧠 Skills Tracker</span>
+      <button class="btn btn-primary" onclick="openModal('skill')">+ Add Skill</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:28px"></th>
+          <th>Skill</th><th>Topic</th><th>Resource</th><th>Status</th><th>Progress</th><th>Practice Task</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="skillBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PERSONAL -->
+<div id="personal" class="content">
+  <div class="table-wrap">
+    <div class="table-header">
+      <span class="table-title">📅 Personal / Life</span>
+      <button class="btn btn-primary" onclick="openModal('personal')">+ Add Task</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:28px"></th>
+          <th>Task</th><th>Category</th><th>Deadline</th><th>Priority</th><th>Status</th><th>Notes</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="personalBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- WEEKLY -->
+<div id="weekly" class="content">
+  <div class="section-label">🗓 Weekly Overview</div>
+  <div class="cards" id="weekCards"></div>
+  <div class="section-label">📋 All Active Tasks This Week</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Task</th><th>Category</th><th>Deadline</th><th>Priority</th><th>Status</th></tr></thead>
+      <tbody id="weekBody"></tbody>
+    </table>
+  </div>
+  <div class="section-label">📝 Weekly Review</div>
+  <div class="review-grid">
+    <div class="review-item"><div class="review-q">What did I complete this week?</div><input id="wr1" type="text" placeholder="Write here..." oninput="saveReview()"/></div>
+    <div class="review-item"><div class="review-q">What got blocked or delayed?</div><input id="wr2" type="text" placeholder="Write here..." oninput="saveReview()"/></div>
+    <div class="review-item"><div class="review-q">What should I focus on next week?</div><input id="wr3" type="text" placeholder="Write here..." oninput="saveReview()"/></div>
+    <div class="review-item"><div class="review-q">Energy level this week (1–10)?</div><input id="wr4" type="text" placeholder="e.g. 7" oninput="saveReview()"/></div>
+  </div>
+  <div class="section-label">💡 Ideas & Notes</div>
+  <div class="notes-grid">
+    <div class="notes-box"><h3>📌 Ideas</h3><textarea id="notesIdeas" placeholder="Write your ideas here..." oninput="saveNotes()"></textarea></div>
+    <div class="notes-box"><h3>🗒 General Notes</h3><textarea id="notesGeneral" placeholder="Anything on your mind..." oninput="saveNotes()"></textarea></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2 id="modalTitle">Add Task</h2>
+    <div id="modalBody"></div>
+    <div class="modal-actions">
+      <button class="btn" style="background:var(--surface2);color:var(--muted)" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── DEFAULT DATA ────────────────────────────────────────────────────────────
+const DEFAULT = {
+  study: [],
+  project: [],
+  skill: [],
+  personal: []
+};
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let state = {study:[],project:[],skill:[],personal:[],review:{},notes:{}};
+let modalMode = null; // {type, editId}
+let nextId = {study:100,project:100,skill:100,personal:100};
+
+function loadState(){
+  const saved = localStorage.getItem('uniPlanner_v2');
+  if(saved){ state = JSON.parse(saved); }
+  else { state = JSON.parse(JSON.stringify(DEFAULT)); }
+  // sync nextId
+  ['study','project','skill','personal'].forEach(k=>{
+    const ids = state[k].map(x=>x.id);
+    nextId[k] = ids.length ? Math.max(...ids)+1 : 1;
+  });
+  const r = localStorage.getItem('uniPlanner_review');
+  if(r) state.review = JSON.parse(r);
+  const n = localStorage.getItem('uniPlanner_notes');
+  if(n) state.notes = JSON.parse(n);
+}
+
+function saveState(){
+  localStorage.setItem('uniPlanner_v2', JSON.stringify(state));
+}
+function saveReview(){
+  state.review = {wr1:v('wr1'),wr2:v('wr2'),wr3:v('wr3'),wr4:v('wr4')};
+  localStorage.setItem('uniPlanner_review', JSON.stringify(state.review));
+}
+function saveNotes(){
+  state.notes = {ideas:v('notesIdeas'),general:v('notesGeneral')};
+  localStorage.setItem('uniPlanner_notes', JSON.stringify(state.notes));
+}
+
+function v(id){ const el=document.getElementById(id); return el?el.value:''; }
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+const statusClass = s => s==='Completed'?'s-done':s==='In Progress'?'s-prog':s==='Overdue'?'s-over':'s-none';
+const statusIcon  = s => s==='Completed'?'✅':s==='In Progress'?'🔄':s==='Overdue'?'🚨':'⏳';
+const priClass    = p => p==='High'?'p-high':p==='Medium'?'p-med':'p-low';
+const priIcon     = p => p==='High'?'🔴':p==='Medium'?'🟠':'🟢';
+const fmtDate     = d => { if(!d||d==='Daily'||d==='Weekly'||d==='Ongoing') return d||'—';
+  const dt=new Date(d); return isNaN(dt)?d:dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short'}); };
+const isOverdue   = d => { if(!d||d==='Daily'||d==='Weekly'||d==='Ongoing') return false;
+  return new Date(d)<new Date() && true; };
+
+function progBar(p, pri){
+  const cls = pri==='High'&&p<30?'red':pri==='Medium'&&p<30?'orange':'';
+  return `<div class="prog-wrap"><div class="prog-bar ${cls}" style="width:${p}%"></div></div><span class="prog-label">${p}%</span>`;
+}
+
+function toast(msg, type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className=`toast ${type} show`;
+  setTimeout(()=>t.className='toast',2500);
+}
+
+// ─── TABS ────────────────────────────────────────────────────────────────────
+function showTab(id, el){
+  document.querySelectorAll('.content').forEach(c=>c.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(el) el.classList.add('active');
+  renderAll();
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function renderAll(){
+  renderDashboard();
+  renderStudy();
+  renderProjects();
+  renderSkills();
+  renderPersonal();
+  renderWeekly();
+  loadReviewNotes();
+}
+
+function renderDashboard(){
+  const all = [...state.study,...state.project,...state.skill,...state.personal];
+  const done = all.filter(x=>x.status==='Completed').length;
+  const prog = all.filter(x=>x.status==='In Progress').length;
+  const none = all.filter(x=>x.status==='Not Started').length;
+  const over = all.filter(x=>isOverdue(x.deadline||x.start)&&x.status!=='Completed').length;
+  const pct  = all.length ? Math.round(done/all.length*100) : 0;
+
+  document.getElementById('dashCards').innerHTML = `
+    <div class="card"><div class="card-label">Total Tasks</div><div class="card-value cv-purple">${all.length}</div></div>
+    <div class="card"><div class="card-label">Completed</div><div class="card-value cv-green">${done}</div></div>
+    <div class="card"><div class="card-label">In Progress</div><div class="card-value cv-orange">${prog}</div></div>
+    <div class="card"><div class="card-label">Not Started</div><div class="card-value cv-muted">${none}</div></div>
+    <div class="card"><div class="card-label">Overdue</div><div class="card-value cv-red">${over}</div></div>
+    <div class="card"><div class="card-label">Overall Progress</div><div class="card-value cv-purple">${pct}%</div></div>`;
+
+  // top 3 urgent/high priority not done
+  const urgent = all.filter(x=>x.urgent&&x.status!=='Completed').slice(0,3);
+  const high   = all.filter(x=>x.priority==='High'&&x.status!=='Completed'&&!x.urgent).slice(0,3-urgent.length);
+  const top3   = [...urgent,...high].slice(0,3);
+  const colors = ['var(--accent)','var(--orange)','var(--green)'];
+  document.getElementById('focusGrid').innerHTML = top3.length ? top3.map((t,i)=>`
+    <div class="focus-card" style="border-left-color:${colors[i]}">
+      <div class="fc-num">#${i+1} — ${priIcon(t.priority||'Medium')} ${t.priority||'Medium'}${t.urgent?'<span class="urgent-badge">🚨 URGENT</span>':''}</div>
+      <div class="fc-task">${t.title||t.task||t.topic||'—'}</div>
+      <div class="fc-meta">${fmtDate(t.deadline)||'Ongoing'}</div>
+    </div>`).join('') : '<div style="color:var(--muted);font-size:13px">No high priority tasks. You\'re on top of things 🎉</div>';
+
+  const cats = [
+    {name:'📚 Study',   items:state.study},
+    {name:'💻 Projects',items:state.project},
+    {name:'🧠 Skills',  items:state.skill},
+    {name:'📅 Personal',items:state.personal},
+  ];
+  document.getElementById('catProgress').innerHTML = cats.map(c=>{
+    const d=c.items.filter(x=>x.status==='Completed').length;
+    const p=c.items.filter(x=>x.status==='In Progress').length;
+    const pct=c.items.length?Math.round(d/c.items.length*100):0;
+    return `<tr><td>${c.name}</td><td>${c.items.length}</td><td>${d}</td><td>${p}</td>
+      <td>${progBar(pct,'Medium')}</td></tr>`;
+  }).join('');
+}
+
+function renderStudy(){
+  const groups = {};
+  state.study.forEach(t=>{ if(!groups[t.course]) groups[t.course]=[]; groups[t.course].push(t); });
+  let html = '';
+  Object.entries(groups).forEach(([course, tasks])=>{
+    html += `<tr class="group-row"><td></td><td colspan="9">📘 ${course}</td></tr>`;
+    tasks.forEach(t=>{
+      const over = isOverdue(t.deadline)&&t.status!=='Completed';
+      html += `<tr draggable="true" data-id="${t.id}" data-type="study" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="drop(event,'study')">
+        <td><span class="drag-handle">⠿</span></td>
+        <td>${t.course}</td>
+        <td><span style="font-size:11px;color:var(--muted)">${t.type}</span></td>
+        <td>${t.title}${t.urgent?'<span class="urgent-badge">🚨 URGENT</span>':''}</td>
+        <td style="color:${over?'var(--red)':'inherit'}">${fmtDate(t.deadline)}${over?' 🚨':''}</td>
+        <td><span class="pri ${priClass(t.priority)}">${priIcon(t.priority)} ${t.priority}</span></td>
+        <td><span class="status ${statusClass(t.status)}">${statusIcon(t.status)} ${t.status}</span></td>
+        <td>${progBar(t.progress,t.priority)}</td>
+        <td style="color:var(--muted);font-size:11px;max-width:120px">${t.notes||'—'}</td>
+        <td style="white-space:nowrap">
+          <button class="btn-sm btn-urgent" onclick="toggleUrgent('study',${t.id})" title="Mark Urgent">🚨</button>
+          <button class="btn-sm btn-edit" onclick="openModal('study',${t.id})">✏️</button>
+          <button class="btn-sm btn-del" onclick="deleteItem('study',${t.id})">🗑</button>
+        </td>
+      </tr>`;
+    });
+  });
+  document.getElementById('studyBody').innerHTML = html;
+}
+
+function renderProjects(){
+  const groups = {};
+  state.project.forEach(t=>{ if(!groups[t.project]) groups[t.project]={}; if(!groups[t.project][t.module]) groups[t.project][t.module]=[]; groups[t.project][t.module].push(t); });
+  let html = '';
+  Object.entries(groups).forEach(([proj, modules])=>{
+    html += `<tr class="group-row"><td></td><td colspan="10">🖥 ${proj}</td></tr>`;
+    Object.entries(modules).forEach(([mod, tasks])=>{
+      html += `<tr class="module-row"><td></td><td colspan="10">📦 ${mod}</td></tr>`;
+      tasks.forEach(t=>{
+        const over = isOverdue(t.deadline)&&t.status!=='Completed';
+        html += `<tr draggable="true" data-id="${t.id}" data-type="project" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="drop(event,'project')">
+          <td><span class="drag-handle">⠿</span></td>
+          <td>${t.project}</td><td>${t.module}</td>
+          <td>${t.task}${t.urgent?'<span class="urgent-badge">🚨 URGENT</span>':''}</td>
+          <td style="font-size:11px">${fmtDate(t.start)}</td>
+          <td style="color:${over?'var(--red)':'inherit'}">${fmtDate(t.deadline)}${over?' 🚨':''}</td>
+          <td><span class="pri ${priClass(t.priority)}">${priIcon(t.priority)} ${t.priority}</span></td>
+          <td><span class="status ${statusClass(t.status)}">${statusIcon(t.status)} ${t.status}</span></td>
+          <td>${progBar(t.progress,t.priority)}</td>
+          <td style="font-size:11px;color:var(--muted)">${t.depends||'—'}</td>
+          <td style="white-space:nowrap">
+            <button class="btn-sm btn-urgent" onclick="toggleUrgent('project',${t.id})" title="Mark Urgent">🚨</button>
+            <button class="btn-sm btn-edit" onclick="openModal('project',${t.id})">✏️</button>
+            <button class="btn-sm btn-del" onclick="deleteItem('project',${t.id})">🗑</button>
+          </td>
+        </tr>`;
+      });
+    });
+  });
+  document.getElementById('projectBody').innerHTML = html;
+}
+
+function renderSkills(){
+  const groups = {};
+  state.skill.forEach(t=>{ if(!groups[t.skill]) groups[t.skill]=[]; groups[t.skill].push(t); });
+  let html = '';
+  Object.entries(groups).forEach(([skill, items])=>{
+    html += `<tr class="group-row"><td></td><td colspan="7">🧠 ${skill}</td></tr>`;
+    items.forEach(t=>{
+      html += `<tr draggable="true" data-id="${t.id}" data-type="skill" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="drop(event,'skill')">
+        <td><span class="drag-handle">⠿</span></td>
+        <td>${t.skill}</td><td>${t.topic}${t.urgent?'<span class="urgent-badge">🚨 URGENT</span>':''}</td>
+        <td style="font-size:11px;color:var(--muted)">${t.resource}</td>
+        <td><span class="status ${statusClass(t.status)}">${statusIcon(t.status)} ${t.status}</span></td>
+        <td>${progBar(t.progress,'Medium')}</td>
+        <td style="font-size:11px;color:var(--muted)">${t.practice||'—'}</td>
+        <td style="white-space:nowrap">
+          <button class="btn-sm btn-urgent" onclick="toggleUrgent('skill',${t.id})" title="Mark Urgent">🚨</button>
+          <button class="btn-sm btn-edit" onclick="openModal('skill',${t.id})">✏️</button>
+          <button class="btn-sm btn-del" onclick="deleteItem('skill',${t.id})">🗑</button>
+        </td>
+      </tr>`;
+    });
+  });
+  document.getElementById('skillBody').innerHTML = html;
+}
+
+function renderPersonal(){
+  let html = '';
+  state.personal.forEach(t=>{
+    const over = isOverdue(t.deadline)&&t.status!=='Completed';
+    html += `<tr draggable="true" data-id="${t.id}" data-type="personal" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="drop(event,'personal')">
+      <td><span class="drag-handle">⠿</span></td>
+      <td>${t.task}${t.urgent?'<span class="urgent-badge">🚨 URGENT</span>':''}</td>
+      <td style="font-size:11px">${t.category}</td>
+      <td style="color:${over?'var(--red)':'inherit'}">${fmtDate(t.deadline)}${over?' 🚨':''}</td>
+      <td><span class="pri ${priClass(t.priority)}">${priIcon(t.priority)} ${t.priority}</span></td>
+      <td><span class="status ${statusClass(t.status)}">${statusIcon(t.status)} ${t.status}</span></td>
+      <td style="font-size:11px;color:var(--muted)">${t.notes||'—'}</td>
+      <td style="white-space:nowrap">
+        <button class="btn-sm btn-urgent" onclick="toggleUrgent('personal',${t.id})" title="Mark Urgent">🚨</button>
+        <button class="btn-sm btn-edit" onclick="openModal('personal',${t.id})">✏️</button>
+        <button class="btn-sm btn-del" onclick="deleteItem('personal',${t.id})">🗑</button>
+      </td>
+    </tr>`;
+  });
+  document.getElementById('personalBody').innerHTML = html;
+}
+
+function renderWeekly(){
+  const all = [
+    ...state.study.map(x=>({...x,cat:'📚 Study',name:x.title})),
+    ...state.project.map(x=>({...x,cat:'💻 Projects',name:x.task})),
+    ...state.skill.map(x=>({...x,cat:'🧠 Skills',name:x.topic,deadline:'Ongoing'})),
+    ...state.personal.map(x=>({...x,cat:'📅 Personal',name:x.task})),
+  ];
+  const active = all.filter(x=>x.status!=='Completed');
+  const done   = all.filter(x=>x.status==='Completed').length;
+  const prog   = all.filter(x=>x.status==='In Progress').length;
+  const none   = all.filter(x=>x.status==='Not Started').length;
+  const over   = all.filter(x=>isOverdue(x.deadline)&&x.status!=='Completed').length;
+  const pct    = all.length?Math.round(done/all.length*100):0;
+
+  document.getElementById('weekCards').innerHTML = `
+    <div class="card"><div class="card-label">Total</div><div class="card-value cv-purple">${all.length}</div></div>
+    <div class="card"><div class="card-label">Completed</div><div class="card-value cv-green">${done}</div></div>
+    <div class="card"><div class="card-label">In Progress</div><div class="card-value cv-orange">${prog}</div></div>
+    <div class="card"><div class="card-label">Not Started</div><div class="card-value cv-muted">${none}</div></div>
+    <div class="card"><div class="card-label">Overdue</div><div class="card-value cv-red">${over}</div></div>
+    <div class="card"><div class="card-label">Progress</div><div class="card-value cv-purple">${pct}%</div></div>`;
+
+  document.getElementById('weekBody').innerHTML = active.map(t=>`
+    <tr>
+      <td>${t.name||'—'}${t.urgent?'<span class="urgent-badge">🚨 URGENT</span>':''}</td>
+      <td>${t.cat}</td>
+      <td>${fmtDate(t.deadline)||'—'}</td>
+      <td><span class="pri ${priClass(t.priority||'Low')}">${priIcon(t.priority||'Low')} ${t.priority||'—'}</span></td>
+      <td><span class="status ${statusClass(t.status)}">${statusIcon(t.status)} ${t.status}</span></td>
+    </tr>`).join('');
+}
+
+function loadReviewNotes(){
+  if(state.review){ ['wr1','wr2','wr3','wr4'].forEach(k=>{ const el=document.getElementById(k); if(el) el.value=state.review[k]||''; }); }
+  if(state.notes){ const i=document.getElementById('notesIdeas'),g=document.getElementById('notesGeneral'); if(i)i.value=state.notes.ideas||''; if(g)g.value=state.notes.general||''; }
+}
+
+// ─── MODAL FORMS ─────────────────────────────────────────────────────────────
+const STATUSES = ['Not Started','In Progress','Completed'];
+const PRIORITIES = ['High','Medium','Low'];
+const STUDY_TYPES = ['Lecture Review','Assignment','Mid Exam Study','Final Exam Study','Quiz','Project','Other'];
+
+function sel(name, opts, val=''){
+  return `<select name="${name}">${opts.map(o=>`<option value="${o}" ${o===val?'selected':''}>${o}</option>`).join('')}</select>`;
+}
+function inp(name, val='', type='text', placeholder=''){
+  return `<input name="${name}" type="${type}" value="${val}" placeholder="${placeholder}"/>`;
+}
+
+function openModal(type, editId=null){
+  modalMode = {type, editId};
+  const isEdit = editId !== null;
+  document.getElementById('modalTitle').textContent = isEdit ? `✏️ Edit ${type}` : `+ Add ${type}`;
+  let html = '';
+
+  if(type==='study'){
+    const t = isEdit ? state.study.find(x=>x.id===editId) : {};
+    html = `<div class="form-grid">
+      <div class="form-group"><label>Course Name</label>${inp('course',t.course||'','text','e.g. Database Systems')}</div>
+      <div class="form-group"><label>Task Type</label>${sel('type',STUDY_TYPES,t.type||'Assignment')}</div>
+      <div class="form-group full"><label>Task Title</label>${inp('title',t.title||'','text','e.g. Assignment 1 - SQL Queries')}</div>
+      <div class="form-group"><label>Deadline</label>${inp('deadline',t.deadline||'','date')}</div>
+      <div class="form-group"><label>Priority</label>${sel('priority',PRIORITIES,t.priority||'Medium')}</div>
+      <div class="form-group"><label>Status</label>${sel('status',STATUSES,t.status||'Not Started')}</div>
+      <div class="form-group"><label>Progress (%)</label>${inp('progress',t.progress||0,'number','0-100')}</div>
+      <div class="form-group full"><label>Notes</label>${inp('notes',t.notes||'','text','Optional notes')}</div>
+      <div class="form-group"><label>🚨 Mark as Urgent</label><select name="urgent"><option value="false" ${!t.urgent?'selected':''}>No</option><option value="true" ${t.urgent?'selected':''}>Yes — Insert at Top</option></select></div>
+    </div>`;
+  } else if(type==='project'){
+    const t = isEdit ? state.project.find(x=>x.id===editId) : {};
+    html = `<div class="form-grid">
+      <div class="form-group"><label>Project Name</label>${inp('project',t.project||'','text','e.g. Student Portal')}</div>
+      <div class="form-group"><label>Module</label>${inp('module',t.module||'','text','e.g. Authentication')}</div>
+      <div class="form-group full"><label>Task Name</label>${inp('task',t.task||'','text','e.g. Design Login UI')}</div>
+      <div class="form-group full"><label>Description</label>${inp('desc',t.desc||'','text','Brief description')}</div>
+      <div class="form-group"><label>Start Date</label>${inp('start',t.start||'','date')}</div>
+      <div class="form-group"><label>Deadline</label>${inp('deadline',t.deadline||'','date')}</div>
+      <div class="form-group"><label>Priority</label>${sel('priority',PRIORITIES,t.priority||'Medium')}</div>
+      <div class="form-group"><label>Status</label>${sel('status',STATUSES,t.status||'Not Started')}</div>
+      <div class="form-group"><label>Progress (%)</label>${inp('progress',t.progress||0,'number','0-100')}</div>
+      <div class="form-group"><label>Depends On</label>${inp('depends',t.depends||'','text','Task name or —')}</div>
+      <div class="form-group full"><label>Notes</label>${inp('notes',t.notes||'','text','Optional')}</div>
+      <div class="form-group"><label>🚨 Mark as Urgent</label><select name="urgent"><option value="false" ${!t.urgent?'selected':''}>No</option><option value="true" ${t.urgent?'selected':''}>Yes — Insert at Top</option></select></div>
+    </div>`;
+  } else if(type==='skill'){
+    const t = isEdit ? state.skill.find(x=>x.id===editId) : {};
+    html = `<div class="form-grid">
+      <div class="form-group"><label>Skill Name</label>${inp('skill',t.skill||'','text','e.g. React')}</div>
+      <div class="form-group"><label>Topic / Lesson</label>${inp('topic',t.topic||'','text','e.g. useEffect & API Calls')}</div>
+      <div class="form-group"><label>Resource</label>${inp('resource',t.resource||'','text','e.g. Traversy Media - YT')}</div>
+      <div class="form-group"><label>Status</label>${sel('status',STATUSES,t.status||'Not Started')}</div>
+      <div class="form-group"><label>Progress (%)</label>${inp('progress',t.progress||0,'number','0-100')}</div>
+      <div class="form-group"><label>Practice Task</label>${inp('practice',t.practice||'','text','Optional')}</div>
+      <div class="form-group"><label>🚨 Mark as Urgent</label><select name="urgent"><option value="false" ${!t.urgent?'selected':''}>No</option><option value="true" ${t.urgent?'selected':''}>Yes — Insert at Top</option></select></div>
+    </div>`;
+  } else if(type==='personal'){
+    const t = isEdit ? state.personal.find(x=>x.id===editId) : {};
+    html = `<div class="form-grid">
+      <div class="form-group full"><label>Task</label>${inp('task',t.task||'','text','e.g. Exercise 3x per week')}</div>
+      <div class="form-group"><label>Category</label>${inp('category',t.category||'','text','e.g. 🏃 Health')}</div>
+      <div class="form-group"><label>Deadline</label>${inp('deadline',t.deadline||'','text','Date, Daily, or Weekly')}</div>
+      <div class="form-group"><label>Priority</label>${sel('priority',PRIORITIES,t.priority||'Medium')}</div>
+      <div class="form-group"><label>Status</label>${sel('status',STATUSES,t.status||'Not Started')}</div>
+      <div class="form-group"><label>Notes</label>${inp('notes',t.notes||'','text','Optional')}</div>
+      <div class="form-group"><label>🚨 Mark as Urgent</label><select name="urgent"><option value="false" ${!t.urgent?'selected':''}>No</option><option value="true" ${t.urgent?'selected':''}>Yes — Insert at Top</option></select></div>
+    </div>`;
+  }
+
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('open');
+  modalMode = null;
+}
+
+function saveModal(){
+  const {type, editId} = modalMode;
+  const form = document.querySelector('#modalBody');
+  const get  = name => { const el=form.querySelector(`[name="${name}"]`); return el?el.value.trim():''; };
+  const isUrgent = get('urgent')==='true';
+
+  if(type==='study'){
+    const obj = {
+      id: editId || nextId.study++,
+      course:get('course')||'Uncategorized', type:get('type'), title:get('title'),
+      deadline:get('deadline'), priority:get('priority'), status:get('status'),
+      progress:parseInt(get('progress'))||0, notes:get('notes'), urgent:isUrgent
+    };
+    if(!obj.title){ toast('Task title is required','error'); return; }
+    if(editId){ const i=state.study.findIndex(x=>x.id===editId); state.study[i]=obj; }
+    else if(isUrgent){ state.study.unshift(obj); }
+    else { state.study.push(obj); }
+  } else if(type==='project'){
+    const obj = {
+      id: editId || nextId.project++,
+      project:get('project')||'Uncategorized', module:get('module')||'General',
+      task:get('task'), desc:get('desc'), start:get('start'), deadline:get('deadline'),
+      priority:get('priority'), status:get('status'), progress:parseInt(get('progress'))||0,
+      depends:get('depends'), notes:get('notes'), urgent:isUrgent
+    };
+    if(!obj.task){ toast('Task name is required','error'); return; }
+    if(editId){ const i=state.project.findIndex(x=>x.id===editId); state.project[i]=obj; }
+    else if(isUrgent){ state.project.unshift(obj); }
+    else { state.project.push(obj); }
+  } else if(type==='skill'){
+    const obj = {
+      id: editId || nextId.skill++,
+      skill:get('skill')||'General', topic:get('topic'), resource:get('resource'),
+      status:get('status'), progress:parseInt(get('progress'))||0,
+      practice:get('practice'), urgent:isUrgent
+    };
+    if(!obj.topic){ toast('Topic is required','error'); return; }
+    if(editId){ const i=state.skill.findIndex(x=>x.id===editId); state.skill[i]=obj; }
+    else if(isUrgent){ state.skill.unshift(obj); }
+    else { state.skill.push(obj); }
+  } else if(type==='personal'){
+    const obj = {
+      id: editId || nextId.personal++,
+      task:get('task'), category:get('category')||'📌 General',
+      deadline:get('deadline'), priority:get('priority'),
+      status:get('status'), notes:get('notes'), urgent:isUrgent
+    };
+    if(!obj.task){ toast('Task is required','error'); return; }
+    if(editId){ const i=state.personal.findIndex(x=>x.id===editId); state.personal[i]=obj; }
+    else if(isUrgent){ state.personal.unshift(obj); }
+    else { state.personal.push(obj); }
+  }
+
+  saveState();
+  closeModal();
+  renderAll();
+  toast(editId ? '✅ Task updated' : '✅ Task added');
+}
+
+// ─── DELETE / URGENT ─────────────────────────────────────────────────────────
+function deleteItem(type, id){
+  if(!confirm('Delete this task?')) return;
+  state[type] = state[type].filter(x=>x.id!==id);
+  saveState(); renderAll();
+  toast('🗑 Task deleted');
+}
+
+function toggleUrgent(type, id){
+  const item = state[type].find(x=>x.id===id);
+  if(!item) return;
+  item.urgent = !item.urgent;
+  if(item.urgent){
+    // move to top of its array
+    state[type] = [item, ...state[type].filter(x=>x.id!==id)];
+    toast('🚨 Marked urgent — moved to top');
+  } else {
+    toast('✅ Urgent flag removed');
+  }
+  saveState(); renderAll();
+}
+
+// ─── DRAG & DROP (reorder rows) ───────────────────────────────────────────────
+let dragSrcId = null;
+let dragSrcType = null;
+
+function dragStart(e){
+  dragSrcId   = parseInt(e.currentTarget.dataset.id);
+  dragSrcType = e.currentTarget.dataset.type;
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+function dragOver(e){
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('tr.drag-over').forEach(r=>r.classList.remove('drag-over'));
+  e.currentTarget.classList.add('drag-over');
+}
+function drop(e, type){
+  e.preventDefault();
+  document.querySelectorAll('tr.dragging').forEach(r=>r.classList.remove('dragging'));
+  document.querySelectorAll('tr.drag-over').forEach(r=>r.classList.remove('drag-over'));
+  if(dragSrcType !== type) return;
+  const targetId = parseInt(e.currentTarget.dataset.id);
+  if(dragSrcId === targetId) return;
+  const arr = state[type];
+  const fromIdx = arr.findIndex(x=>x.id===dragSrcId);
+  const toIdx   = arr.findIndex(x=>x.id===targetId);
+  if(fromIdx<0||toIdx<0) return;
+  const [moved] = arr.splice(fromIdx,1);
+  arr.splice(toIdx,0,moved);
+  saveState(); renderAll();
+  toast('↕️ Task reordered');
+}
+
+// ─── RESET ───────────────────────────────────────────────────────────────────
+function confirmReset(){
+  if(confirm('⚠️ This will delete ALL your data and restore defaults. Are you sure?')){
+    localStorage.removeItem('uniPlanner_v2');
+    localStorage.removeItem('uniPlanner_review');
+    localStorage.removeItem('uniPlanner_notes');
+    loadState();
+    renderAll();
+    toast('🔄 Data reset to defaults');
+  }
+}
+
+// ─── DATE ────────────────────────────────────────────────────────────────────
+document.getElementById('currentDate').textContent =
+  new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+// close modal on overlay click
+document.getElementById('modalOverlay').addEventListener('click', function(e){
+  if(e.target===this) closeModal();
+});
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+// Clear old sample data if it exists from a previous version
+if(localStorage.getItem('uniPlanner_v2')){
+  const saved = JSON.parse(localStorage.getItem('uniPlanner_v2'));
+  // if it has the old sample data (id 1-13 in study), wipe it
+  if(saved.study && saved.study.length >= 10){
+    localStorage.removeItem('uniPlanner_v2');
+  }
+}
+loadState();
+renderAll();
+</script>
+</body>
+</html>
